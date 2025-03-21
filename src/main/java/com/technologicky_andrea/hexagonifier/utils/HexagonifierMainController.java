@@ -1,0 +1,67 @@
+package com.technologicky_andrea.hexagonifier.utils;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+
+public class HexagonifierMainController {
+    @FXML
+    public Button filePickerButton;
+    @FXML
+    public Button downloadButton;
+    @FXML
+    public Button hexagonifyButton;
+    @FXML
+    public ImageView chosenImageView;
+    @FXML
+    public ImageView hexagonifiedImageView;
+    @FXML
+    public Spinner<Integer> hexColsSpinner;
+    @FXML
+    public Spinner<Integer> normializationLevelSpinner;
+
+    private final HexagonifierTool hexagonifierTool = new HexagonifierTool();
+
+    @FXML
+    public void initialize() {
+        // set spinners
+        hexColsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 200, 50));
+        normializationLevelSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 5));
+    }
+
+    @FXML
+    private void loadImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            Image beforeImage = new Image(file.toURI().toString());
+            hexagonifierTool.setImageToHexagonify(beforeImage);
+            chosenImageView.setImage(beforeImage);
+            chosenImageView.setFitHeight(400.0);
+            chosenImageView.setFitWidth(400.0);
+            chosenImageView.setPreserveRatio(true);
+        }
+    }
+
+    @FXML
+    private void saveImage(){
+
+    }
+
+    @FXML
+    private void hexagonify(){
+        if (!hexagonifierTool.hasImageToHexagonify()) {
+            return;
+        }
+        hexagonifierTool.setCols(hexColsSpinner.getValue());
+        hexagonifierTool.setNormalizationLevel(normializationLevelSpinner.getValue());
+    }
+}

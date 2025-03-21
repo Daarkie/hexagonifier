@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.technologicky_andrea.hexagonifier.utils.HexagonifierMainController"
+      spacing="10" alignment="CENTER"
+      prefHeight="800.0" prefWidth="1000.0" >
+
+    <!-- "Before" image with file picker -->
+    <VBox spacing="20" alignment="CENTER" >
+        <ImageView fx:id="chosenImageView" />
+        <Button text="Choose Image" fx:id="filePickerButton" onAction="#loadImage" />
+    </VBox>
+
+    <!-- Controls -->
+    <VBox spacing="20" alignment="CENTER" HBox.hgrow="ALWAYS" >
+        <Label text="Number of columns:" />
+        <Spinner fx:id="hexColsSpinner" editable="true" />
+        <Label text="Normalization level:" />
+        <Spinner fx:id="normializationLevelSpinner" editable="true" />
+        <Button text="Hexagonify!" fx:id="hexagonifyButton" onAction="#hexagonify" />
+    </VBox>
+
+    <!-- "After" image with download option -->
+    <VBox spacing="20" alignment="CENTER" >
+        <ImageView fx:id="hexagonifiedImageView" />
+        <Button text="Download Image" fx:id="downloadButton" onAction="#saveImage" />
+    </VBox>
+</HBox>
