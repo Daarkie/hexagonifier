@@ -14,7 +14,7 @@
       prefHeight="800.0" prefWidth="1000.0" >
 
     <!-- "Before" image with file picker -->
-    <VBox spacing="20" alignment="CENTER" >
+    <VBox spacing="20" alignment="CENTER" prefWidth="450.0" >
         <ImageView fx:id="chosenImageView" />
         <Button text="Choose Image" fx:id="filePickerButton" onAction="#loadImage" />
     </VBox>
@@ -24,12 +24,12 @@
         <Label text="Number of columns:" />
         <Spinner fx:id="hexColsSpinner" editable="true" />
         <Label text="Normalization level:" />
-        <Spinner fx:id="normializationLevelSpinner" editable="true" />
+        <Spinner fx:id="normalizationLevelSpinner" editable="true" />
         <Button text="Hexagonify!" fx:id="hexagonifyButton" onAction="#hexagonify" />
     </VBox>
 
     <!-- "After" image with download option -->
-    <VBox spacing="20" alignment="CENTER" >
+    <VBox spacing="20" alignment="CENTER" prefWidth="450.0" >
         <ImageView fx:id="hexagonifiedImageView" />
         <Button text="Download Image" fx:id="downloadButton" onAction="#saveImage" />
     </VBox>

@@ -20,7 +20,7 @@ public class HexagonifyImage extends Application {
         HBox root = loader.load();
 
         primaryStage.setTitle("Hexagonifier");
-        primaryStage.setScene(new Scene(root, 800, 1000));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 }

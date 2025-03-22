@@ -13,30 +13,30 @@ public class HexagonifierTool {
     private Image imageToHexagonify = null;
     private int cols;
     private int rows;
-    private int widthOut;
+    private double widthOut;
     private double normalizationLevelRemainder;
 
     private double normalize(double colorComponent) {
-        int leveled = (int) (colorComponent / normalizationLevelRemainder);
+        int leveled = (int) Math.round(colorComponent / normalizationLevelRemainder);
         return leveled * normalizationLevelRemainder;
     }
 
-    private javafx.scene.paint.Color normalizeColor(javafx.scene.paint.Color color) {
-        double red = normalize(color.getRed());
-        double green = normalize(color.getGreen());
-        double blue = normalize(color.getBlue());
-        double alpha = normalize(color.getOpacity());
+    private javafx.scene.paint.Color normalizeColor(javafx.scene.paint.Color coloredPixel) {
+        double red = normalize(coloredPixel.getRed());
+        double green = normalize(coloredPixel.getGreen());
+        double blue = normalize(coloredPixel.getBlue());
+        double alpha = normalize(coloredPixel.getOpacity());
         return new javafx.scene.paint.Color(red, green, blue, alpha);
     }
 
-    private Color[][] predominantColors() {
+    private javafx.scene.paint.Color[][] predominantColors() {
         // get hexagon dims and number or rows
-        int widthIn = (int) (imageToHexagonify.getWidth() / (0.75 * cols + 0.25));
+        double widthIn = imageToHexagonify.getWidth() / (0.75 * cols + 0.25);
         widthIn = Math.max(widthIn, 1);
-        widthOut = Math.min(widthIn, 4);
-        int heightIn = (int) (Math.sqrt(3) / 2.0 * widthIn);
+        widthOut = Math.max(widthIn, 4);
+        double heightIn = (Math.sqrt(3.0) / 2.0) * widthIn;
         heightIn = Math.max(heightIn, 1);
-        rows = (int) (imageToHexagonify.getHeight() / heightIn + 0.5);
+        rows = (int) ((imageToHexagonify.getHeight() - heightIn * 0.5) / heightIn);
         rows = Math.max(rows, 1);
 
         PixelReader pixR = imageToHexagonify.getPixelReader();
@@ -46,38 +46,39 @@ public class HexagonifierTool {
         //  iterate through the coordinates
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                Map<javafx.scene.paint.Color, Integer> normalizedColors = new HashMap<>();
+                // make hashmap to count frequency of colors
+                Map<Color, Integer> normalizedColors = new HashMap<>();
 
                 // iterate through the pixels inside
                 for (int x = 0; x < widthIn; x++) {
                     for (int y = 0; y < heightIn; y++) {
                         // ignore triangles
-                        int triangleX = (x * 2 > widthIn ? widthIn - x : x) * 2;
-                        int triangleY = y * 2 > heightIn ? heightIn - y : y;
-                        int extraTriangle = (widthIn + heightIn) / 4;
+                        int triangleX = (int) (x * 2 > widthIn ? widthIn - x : x) * 2;
+                        int triangleY = y * 2 > heightIn ? (int) heightIn - y : y;
+                        int extraTriangle = (int) (widthIn + heightIn) / 4;
                         if (triangleY + triangleX < extraTriangle) {
                             continue;
                         }
 
-                        // make hashmap to count frequency of colors
-                        javafx.scene.paint.Color leveledColor = normalizeColor(pixR.getColor(x, y));
-                        if (normalizedColors.containsKey(leveledColor)) {
-                            int freq = normalizedColors.get(leveledColor);
-                            normalizedColors.put(leveledColor, ++freq);
-                        } else {
-                            normalizedColors.put(leveledColor, 1);
-                        }
+                        int coorX = x + (int) (c * widthIn * 0.75);
+                        int coorY = y + (int) (r * heightIn);
+                        coorY = c % 2 == 0 ? coorY : coorY + (int) (heightIn * 0.5);
+
+                        Color color = pixR.getColor(coorX, coorY);
+                        javafx.scene.paint.Color leveledColor = normalizeColor(color);
+                        normalizedColors.put(leveledColor, normalizedColors.getOrDefault(leveledColor, 0) + 1);
                     }
                 }
 
                 // find the most common color and add it to the coordinatedColors
                 int freq = -1;
-                for (Map.Entry<javafx.scene.paint.Color, Integer> colorEntry : normalizedColors.entrySet()){
+                for (Map.Entry<Color, Integer> colorEntry : normalizedColors.entrySet()){
                     if (freq < colorEntry.getValue()) {
                         freq = colorEntry.getValue();
-                        coordinatedColors[c][r] = colorEntry.getKey();
+                        coordinatedColors[c][r]  = colorEntry.getKey();
                     }
                 }
+                normalizedColors.clear();
             }
         }
         return coordinatedColors;
@@ -88,11 +89,36 @@ public class HexagonifierTool {
         javafx.scene.paint.Color[][] coorColors = predominantColors();
 
         // create an image with appropriate dims
-        int heightOut = (int) (Math.sqrt(3) / 2.0 * widthOut);
-        int imgWidth = (int) Math.ceil(cols * widthOut * 0.75 + cols * 0.25);
+        double heightOut = (Math.sqrt(3.0) / 2.0) * widthOut;
+        int imgWidth = (int) Math.ceil(cols * widthOut * 0.75 + widthOut * 0.25);
         int imgHeight = (int) Math.ceil(rows == 1 ? heightOut : rows * heightOut + 0.5 * heightOut);
+
+        System.out.println("Image dims: " + imgWidth + " x " + imgHeight);
         WritableImage wImage = new WritableImage(imgWidth, imgHeight);
+
+        // paint hexagons on image
         PixelWriter pixW = wImage.getPixelWriter();
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                Color hexColor = coorColors[c][r];
+                for (int x = 0; x < widthOut; x++) {
+                    for (int y = 0; y < heightOut; y++) {
+                        // ignore triangles
+                        int triangleX = (int) ((x * 2 > widthOut ? widthOut - x : x) * 2);
+                        int triangleY = y * 2 > heightOut ? (int) (heightOut - y) : y;
+                        int extraTriangle = (int) ((widthOut + heightOut) / 4);
+                        if (triangleY + triangleX < extraTriangle) {
+                            continue;
+                        }
+                        int coorX = x + (int) (c * widthOut * 0.75);
+                        int coorY = (int) (y + r * heightOut);
+                        coorY = c % 2 == 0 ? coorY : coorY + (int) (heightOut * 0.5);
+                        pixW.setColor(coorX, coorY, hexColor);
+                    }
+                }
+            }
+        }
+
         return wImage;
     }
 

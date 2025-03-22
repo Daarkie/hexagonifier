@@ -24,7 +24,7 @@ public class HexagonifierMainController {
     @FXML
     public Spinner<Integer> hexColsSpinner;
     @FXML
-    public Spinner<Integer> normializationLevelSpinner;
+    public Spinner<Integer> normalizationLevelSpinner;
 
     private final HexagonifierTool hexagonifierTool = new HexagonifierTool();
 
@@ -32,7 +32,7 @@ public class HexagonifierMainController {
     public void initialize() {
         // set spinners
         hexColsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 200, 50));
-        normializationLevelSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 5));
+        normalizationLevelSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 50, 20));
     }
 
     @FXML
@@ -62,6 +62,11 @@ public class HexagonifierMainController {
             return;
         }
         hexagonifierTool.setCols(hexColsSpinner.getValue());
-        hexagonifierTool.setNormalizationLevel(normializationLevelSpinner.getValue());
+        hexagonifierTool.setNormalizationLevel(normalizationLevelSpinner.getValue());
+        Image hexagonifiedImage = hexagonifierTool.hexagonify();
+        hexagonifiedImageView.setImage(hexagonifiedImage);
+        hexagonifiedImageView.setFitWidth(400.0);
+        hexagonifiedImageView.setFitHeight(400.0);
+        hexagonifiedImageView.setPreserveRatio(true);
     }
 }
