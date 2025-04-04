@@ -53,7 +53,7 @@ public class HexagonifierMainController {
             chosenImageView.setFitHeight(400.0);
             chosenImageView.setFitWidth(400.0);
             chosenImageView.setPreserveRatio(true);
-            System.out.println("Before image chosen!");
+            System.out.println("Before image chosen");
         }
     }
 
